@@ -5,6 +5,7 @@ import Button from '../../common/Button/Button';
 import Input from '../../common/Input/Input';
 import TextArea from '../../common/TextArea/TextArea';
 import AuthorListCourse from '../AuthorListCourse/AuthorListCourse';
+import { convertDuration } from '../../helpers/pipeDuration';
 
 function CreateCourse(props) {
 	const { mockedAuthorsListArray } = props;
@@ -70,8 +71,8 @@ function CreateCourse(props) {
 			alert('Please, choose at least one author to create new course');
 		} else {
 			const dateStamp = new Date();
-			const today = dateStamp.getDay();
-			const month = dateStamp.getMonth();
+			const today = dateStamp.getDate().toString().padStart(2, '0');
+			const month = (dateStamp.getMonth() + 1).toString().padStart(2, '0');
 			const year = dateStamp.getFullYear();
 			const fullDate = today + '/' + month + '/' + year;
 			const filteredCourseAuthor = courseAuthors.map((item) => {
@@ -97,22 +98,15 @@ function CreateCourse(props) {
 	}
 
 	const [updateDurationValue, setDurationValue] = useState({
-		hours: '00',
 		minutes: '00',
+		hours: '00',
 	});
+	const { minutes, hours } = updateDurationValue;
+	console.log(updateDurationValue);
 	// convert duration value into hours and minutes
 	function inputDurationHandle(event) {
 		setInputDurationValue(event.target.value);
-		const valueInput = event.target.value;
-		const toNumberValue = Number(valueInput);
-		let hours = Math.floor(toNumberValue / 60);
-		let minutes = toNumberValue % 60;
-		hours = hours < 10 ? '0' + hours : hours;
-		minutes = minutes < 10 ? '0' + minutes : minutes;
-		setDurationValue({
-			hours: hours,
-			minutes: minutes,
-		});
+		setDurationValue(() => convertDuration(event.target.value));
 	}
 	// handler callback that set new item into 'course authors' list from 'author' list
 	function AddAuthor(idItem) {
@@ -208,11 +202,7 @@ function CreateCourse(props) {
 								</div>
 								<div className='form-group d-flex flex-row justify-content-start'>
 									<p className='mb-0'>
-										Duration{' '}
-										<strong>
-											{updateDurationValue.hours}:{updateDurationValue.minutes}
-										</strong>{' '}
-										hours
+										Duration <strong>{`${hours}:${minutes}`}</strong> hours
 									</p>
 								</div>
 							</div>

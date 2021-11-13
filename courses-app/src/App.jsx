@@ -16,12 +16,23 @@ import { Login } from './components/Login/Login';
 import './App.css';
 import CreateCourse from './components/CreateCourse/CreateCourse';
 import { CourseInfo } from './components/CourseInfo/CourseInfo';
+import { getUserByToken } from './helpers/authorization';
+import { PrivateRoute } from './components/Routs/PrivatRoute';
+import { useEffect } from 'react';
 
 function App() {
 	const [mockedAuthorsListArray, setMockedAuthorsListArray] =
 		useState(mockedAuthorsList);
 
-	const history = useHistory();
+	const [userInfo, setUserInfo] = useState(null);
+
+	useEffect(() => {
+		getUserByToken()
+			.then((response) => {
+				setUserInfo(response.result);
+			})
+			.catch((error) => console.log(error));
+	}, []);
 
 	// here we replace author id to author name
 	const coursesList = mockedCoursesList.map((item) => {
@@ -51,28 +62,33 @@ function App() {
 	};
 
 	// add new item object of course list into 'newMockedCoursesListArray' array - existing course list
-	const createNewCoursesButtonHandle = (newDateAuthor) => {
-		setNewMockedCoursesListArray((prevState) => [...prevState, newDateAuthor]);
+	const createNewCoursesButtonHandle = (newDataAuthor) => {
+		console.log(newDataAuthor);
+		setNewMockedCoursesListArray((prevState) => [...prevState, newDataAuthor]);
 	};
 
 	return (
 		<div>
-			<Header />
+			<Header userInfo={userInfo} />
 			<Switch>
-				<Route exact path='/login' component={Login} />
-				<Route path='/registration' component={Registration} />
-				<Route exact path='/courses'>
-					<Courses courseItems={courseListItems} />
+				<Route exact path='/login'>
+					<Login />
 				</Route>
-				<Route exact parh='/courses/add'>
+				<Route path='/registration' component={Registration} />
+				<Route exact path='/courses/add'>
 					<CreateCourse
 						createNewAuthor={createNewAuthor}
 						handlerCourseButton={createNewCoursesButtonHandle}
 						mockedAuthorsListArray={mockedAuthorsListArray}
 					/>
 				</Route>
-				<Route exact path='/courses/:userId' component={CourseInfo} />
-				<Redirect from='/' to='/login' />
+				<Route path='/course/:courseId'>
+					<CourseInfo courseListItems={courseListItems} />;
+				</Route>
+				<Route path='/courses'>
+					<Courses courseItems={courseListItems} />
+				</Route>
+				<Redirect exact from='/' to='/login' />
 			</Switch>
 		</div>
 	);

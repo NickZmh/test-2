@@ -1,20 +1,16 @@
 import { useMemo } from 'react';
 import { Link, useHistory } from 'react-router-dom';
 import Button from '../../../../common/Button/Button';
+import { convertDuration } from './../../../../helpers/pipeDuration';
 
 function CoursesCard(props) {
 	const { title, description, authors, duration, creationDate } = props.value;
+
 	const convertedDuration = useMemo(() => {
-		const toNumberValue = Number(duration);
-		let hours = Math.floor(toNumberValue / 60);
-		let minutes = toNumberValue % 60;
-		hours = hours < 10 ? '0' + hours : hours;
-		minutes = minutes < 10 ? '0' + minutes : minutes;
-		return `${hours}:${minutes}`;
+		return convertDuration(duration);
 	}, [duration]);
 
-	const url = props.url;
-	const { push } = useHistory();
+	const history = useHistory();
 
 	return (
 		<div className='col-12'>
@@ -34,7 +30,8 @@ function CoursesCard(props) {
 									</li>
 									<li className='list-group-item'>
 										<strong>Durations: </strong>
-										{convertedDuration} hours
+										{`${convertedDuration.hours}:${convertedDuration.minutes} `}
+										hours
 									</li>
 									<li className='list-group-item'>
 										<strong>Created: </strong>
@@ -47,7 +44,7 @@ function CoursesCard(props) {
 								children={'Show course'}
 								clickHandleFunction={(e) => {
 									e.preventDefault();
-									push(`${url}/${props.id}`);
+									history.push(`course/${props.id}`);
 								}}
 							/>
 						</div>

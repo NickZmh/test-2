@@ -24,10 +24,6 @@ function Courses({ courseItems }) {
 	}, [searchValue, courseItems]);
 
 	const { url } = useRouteMatch();
-	console.log(url);
-
-	let { slug } = useParams();
-	console.log(slug);
 
 	return (
 		<div>

@@ -4,7 +4,34 @@ export const setUserSession = (token, user) => {
 	sessionStorage.setItem('token', token);
 	sessionStorage.setItem('user', JSON.stringify(user));
 };
-// show error
+// get the token and user from the session storage
+export const getUserSession = (value) => {
+	return sessionStorage.getItem(value);
+};
+// delete user token and user from the seesion storage
+export const deleteUserSession = (token, user) => {
+	sessionStorage.removeItem(token);
+	sessionStorage.removeItem(user);
+};
+
+export const getUserByToken = async () => {
+	const response = await fetch('http://localhost:3000/users/me', {
+		headers: {
+			'Content-Type': 'application/json',
+			Authorization: getUserSession('token'),
+		},
+		method: 'GET',
+	});
+	const responseResult = await response.json();
+	console.log();
+	if (responseResult.successful === true) {
+		return responseResult;
+	} else if (responseResult.successful === false) {
+		return null;
+	}
+};
+
+// show error validation form
 export const setError = (error, errorText) => {
 	console.log(error);
 	alert(errorText);

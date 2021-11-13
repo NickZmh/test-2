@@ -6,9 +6,11 @@ import {
 	setUserSession,
 	setError,
 	validation,
+	getUserSession,
+	getUserByToken,
 } from '../../helpers/authorization';
 
-export const Login = () => {
+export const Login = (props) => {
 	const [inputValues, setInputValues] = useState({
 		name: '',
 		email: '',
@@ -23,14 +25,13 @@ export const Login = () => {
 	};
 	const history = useHistory();
 
-	const handleSumbitLoginForm = async (e) => {
+	const handleSumbitLoginForm = (e) => {
 		e.preventDefault();
 
 		const isValid = validation(inputValues);
 
 		if (isValid) {
 			const jsonData = JSON.stringify(inputValues);
-			console.log(jsonData);
 			const settings = {
 				headers: {
 					'Content-Type': 'application/json',
@@ -38,20 +39,57 @@ export const Login = () => {
 				method: 'POST',
 				body: jsonData,
 			};
-			const response = await fetch('http://localhost:3000/login', settings);
-			const responseResult = await response.json();
-			const token = responseResult.result;
-			if (response.status === 201) {
-				setUserSession(token, responseResult.user);
-				history.push('/courses');
-			} else if (response.status === 400) {
-				setError(
-					responseResult.result,
-					'Some values in not correct, please check your entered data'
-				);
-			}
+			fetch('http://localhost:3000/login', settings)
+				.then((response) => {
+					console.log(response);
+					if (response.status === 201) {
+						return response.json();
+					} else {
+						setError(response.status, 'User not exist');
+					}
+				})
+				.then((data) => {
+					const token = data.result;
+					setUserSession(token, data.user);
+					history.push('/courses');
+				})
+				.catch((error) => {
+					console.log(error);
+				});
 		}
 	};
+
+	// old version
+	// const handleSumbitLoginForm = async (e) => {
+	// 	e.preventDefault();
+
+	// 	const isValid = validation(inputValues);
+
+	// 	if (isValid) {
+	// 		const jsonData = JSON.stringify(inputValues);
+	// 		console.log(jsonData);
+	// 		const settings = {
+	// 			headers: {
+	// 				'Content-Type': 'application/json',
+	// 			},
+	// 			method: 'POST',
+	// 			body: jsonData,
+	// 		};
+	// 		const response = await fetch('http://localhost:3000/login', settings);
+	// 		const responseResult = await response.json();
+	// 		const token = responseResult.result;
+	// 		if (response.status === 201) {
+	// 			setUserSession(token, responseResult.user);
+	// 			history.push('/courses');
+	// 			// getUserByToken().then((dataUser) => setUserAuthData(dataUser));
+	// 		} else if (response.status === 400) {
+	// 			setError(
+	// 				responseResult.result,
+	// 				'Some values in not correct, please check your entered data'
+	// 			);
+	// 		}
+	// 	}
+	// };
 	return (
 		<div className='welcome-block d-flex fle-column justify-content-center align-items-center'>
 			<div className='container'>
